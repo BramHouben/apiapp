@@ -2,19 +2,11 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const app = express();
 const { v4: uuidv4, v4 } = require("uuid");
-// const path = require("path");
 const http = require("http");
-// const fs = require("fs");
 const music = require("./music.json");
-// const https = require("https");
 const server = http.createServer(app);
 const prisma = new PrismaClient();
-// const { Server } = require("socket.io");
-// const io = new Server(server);
 
-// io.on("connection", (socket) => {
-//   console.log("a user connected");
-// });
 server.listen(4000, () => {
   console.log("listening on *:4000");
 });
@@ -26,10 +18,13 @@ app.get("/album/:id", (req, res) => {
 });
 
 app.get("/albums", (req, res) => {
+  console.log("albums req");
+
   return res.json(music);
 });
 
 app.post("/buysong", async (req, res) => {
+  console.log("buysong req");
   var datetime = new Date();
   const user = await prisma.user.findFirst();
 
@@ -44,7 +39,7 @@ app.post("/buysong", async (req, res) => {
 });
 
 app.get("/getsongs", async (req, res) => {
-  // const user = await prisma.user.findFirst();
+  console.log("getsongs req");
   const user = await prisma.user.findFirst();
 
   const data = await prisma.userSongs.findMany({ where: { user: user } });
