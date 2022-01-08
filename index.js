@@ -6,7 +6,9 @@ const http = require("http");
 const music = require("./music.json");
 const server = http.createServer(app);
 const prisma = new PrismaClient();
+const cors = require("cors");
 
+app.use(cors());
 server.listen(4000, () => {
   console.log("listening on *:4000");
 });
@@ -45,4 +47,22 @@ app.get("/getsongs", async (req, res) => {
   const data = await prisma.userSongs.findMany({ where: { user: user } });
 
   return res.json(data);
+});
+
+app.get("/users", async (req, res) => {
+  console.log("users req");
+  const user = await prisma.user.findMany();
+
+  return res.json(user);
+});
+
+app.get("/bought", async (req, res) => {
+  console.log("bought req");
+
+  // const data = await prisma.userSongs.findMany({
+  //   where: { songId: req.params.id },
+  // });
+
+  const data = await prisma.userSongs.findFirst();
+  return res.json(true);
 });
