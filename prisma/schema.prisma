@@ -61,3 +61,20 @@ model UserSongs {
   itemBought DateTime
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model Album {
+  id            String @id @default(cuid())
+  title         String
+  artist        String
+  image         String
+  year_released Int
+  songs         Song[]
+}
+
+model Song {
+  id      String @id @default(cuid())
+  Album   Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  title   String
+  length  Int
+  albumId String
+}
