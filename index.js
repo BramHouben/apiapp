@@ -7,6 +7,8 @@ const music = require("./music.json");
 const server = http.createServer(app);
 const prisma = new PrismaClient();
 const cors = require("cors");
+const chalk = require("chalk");
+const log = console.log;
 
 var corsOptions = {
   origin: "http://localhost:3000",
@@ -17,29 +19,49 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 server.listen(4000, () => {
-  console.log("listening on *:4000");
+  log(chalk.blue.bgRed.bold("listening on *:4000"));
 });
 
-app.get("/album/:id", (req, res) => {
-  console.log("id req");
+app.get("/album/:id", cors(), async (req, res) => {
+  console.log("id req" + req.params.id);
+  const data = await prisma.album.findUnique({
+    where: {
+      id: req.params.id,
+    },
+    include: {
+      songs: true,
+    },
+  });
+  // console.log(data);
 
-  return res.json(music[req.params.id]);
+  if (data === null) {
+    return res.sendStatus(404);
+  }
+
+  return res.json(data);
 });
 
-app.get("/albums", cors(), (req, res) => {
-  console.log("albums req");
-
-  return res.json(music);
-});
-
-app.post("/buysong", cors(), async (req, res) => {
-  console.log("buysong req");
+app.post("/buyalbum", cors(), async (req, res) => {
+  console.log("buysong req" + req.query.id);
+  const idBuy = req.query.id;
+  if (idBuy === null) {
+    return res.sendStatus(404);
+  }
   var datetime = new Date();
   const user = await prisma.user.findFirst();
+  const albumBuy = await prisma.album.findUnique({
+    where: {
+      id: idBuy,
+    },
+  });
+
+  if (albumBuy === null) {
+    return res.sendStatus(404);
+  }
 
   await prisma.userSongs.create({
     data: {
-      songId: uuidv4(),
+      albumId: albumBuy.id,
       itemBought: datetime,
       userId: user.id,
     },
@@ -47,14 +69,14 @@ app.post("/buysong", cors(), async (req, res) => {
   return res.sendStatus(200);
 });
 
-app.get("/getsongs", cors(), async (req, res) => {
-  console.log("getsongs req");
-  const user = await prisma.user.findFirst();
+// app.get("/song", cors(), async (req, res) => {
+//   console.log("getsongs req");
+//   const user = await prisma.user.findFirst();
 
-  const data = await prisma.userSongs.findMany({ where: { user: user } });
+//   const data = await prisma.userSongs.findMany({ where: { user: user } });
 
-  return res.json(data);
-});
+//   return res.json(data);
+// });
 
 app.post("/album", cors(), async (req, res) => {
   console.log("insert album req");
@@ -77,7 +99,7 @@ app.post("/album", cors(), async (req, res) => {
   return res.json(user);
 });
 
-app.get("/getalbum", cors(), async (req, res) => {
+app.get("/album", cors(), async (req, res) => {
   const albums = await prisma.album.findMany({
     include: {
       songs: true, // Return all fields
@@ -86,20 +108,20 @@ app.get("/getalbum", cors(), async (req, res) => {
   return res.json(albums);
 });
 
-app.get("/getsong", cors(), async (req, res) => {
+app.get("/song", cors(), async (req, res) => {
   const song = await prisma.song.findMany();
 
   return res.json(song);
 });
 
-app.post("/song", cors(), async (req, res) => {
-  console.log("insert song req");
-  const user = await prisma.user.findFirst();
+// app.post("/song", cors(), async (req, res) => {
+//   console.log("insert song req");
+//   const user = await prisma.user.findFirst();
 
-  const data = await prisma.userSongs.findMany({ where: { user: user } });
+//   const data = await prisma.userSongs.findMany({ where: { user: user } });
 
-  return res.json(data);
-});
+//   return res.json(data);
+// });
 
 app.get("/users", cors(), async (req, res) => {
   console.log("users req");
@@ -108,9 +130,34 @@ app.get("/users", cors(), async (req, res) => {
   return res.json(user);
 });
 
-app.get("/bought", cors(), async (req, res) => {
-  console.log("bought req");
+app.get("/bought/:id", cors(), async (req, res) => {
+  console.log("bought req" + req.params.id);
+  const idBuy = req.params.id;
+  if (idBuy === null) {
+    return res.sendStatus(404);
+  }
+  const data = await prisma.userSongs.findFirst({
+    where: {
+      albumId: idBuy,
+    },
+  });
+  console.log(data);
+  if (data === null) {
+    log(chalk.red.bold("data send null"));
+    return res.json(false);
+  }
+  log(chalk.green.bold("true"));
 
-  const data = await prisma.userSongs.findFirst();
   return res.json(true);
+});
+
+// app.delete("/delete", cors(), async (req, res) => {
+//   console.log("delete req");
+
+//   await prisma.userSongs.deleteMany();
+// });
+app.get("/usersongs", cors(), async (req, res) => {
+  const song = await prisma.userSongs.findMany();
+
+  return res.json(song);
 });

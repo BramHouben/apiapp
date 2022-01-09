@@ -56,7 +56,7 @@ model VerificationToken {
 
 model UserSongs {
   id         String   @id @default(cuid())
-  songId     String   @unique
+  albumId    String
   userId     String
   itemBought DateTime
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
