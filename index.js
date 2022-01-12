@@ -3,12 +3,9 @@ const { PrismaClient } = require("@prisma/client");
 const app = express();
 const { v4: uuidv4, v4 } = require("uuid");
 const http = require("http");
-const music = require("./music.json");
 const server = http.createServer(app);
 const prisma = new PrismaClient();
 const cors = require("cors");
-const chalk = require("chalk");
-const log = console.log;
 
 var corsOptions = {
   origin: "http://localhost:3000",
@@ -19,7 +16,7 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 server.listen(4000, () => {
-  log(chalk.blue.bgRed.bold("listening on *:4000"));
+  console.log("listening on *:4000");
 });
 
 app.get("/album/:id", cors(), async (req, res) => {
@@ -143,10 +140,10 @@ app.get("/bought/:id", cors(), async (req, res) => {
   });
   console.log(data);
   if (data === null) {
-    log(chalk.red.bold("data send null"));
+    console.log("data send null");
     return res.json(false);
   }
-  log(chalk.green.bold("true"));
+  console.log("true");
 
   return res.json(true);
 });

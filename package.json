@@ -10,8 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^3.7.0",
-    "chalk": "^4.1.2",
+    "@prisma/client": "^3.8.0",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "jsonwebtoken": "^8.5.1",
@@ -20,6 +19,6 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "prisma": "^3.7.0"
+    "prisma": "^3.8.0"
   }
 }
